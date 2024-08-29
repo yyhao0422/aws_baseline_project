@@ -1,11 +1,11 @@
 
 resource "aws_route53_zone" "private_hosted_zone" {
-  name = "example.com"
+  name = "example.ecv.com"
 
   force_destroy = true
 
   vpc {
-    vpc_id = aws_vpc.application_vpc.id
+    vpc_id = module.vpc.vpc_id
   }
 
   tags = {

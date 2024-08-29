@@ -31,13 +31,13 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
 }
 
 resource "aws_security_group" "ec2_instance_lt_sg" {
-  vpc_id = aws_vpc.application_vpc.id
+  vpc_id = var.vpc_id
 
   ingress {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id]
+    security_groups = [var.alb_sg_id]
   }
 
   ingress {
@@ -101,9 +101,7 @@ resource "aws_launch_template" "application_lt" {
   echo "User data script completed"
   EOF
   )
-
-  depends_on = [ aws_nat_gateway.nat_gw ]
-
+  
   tag_specifications {
     resource_type = "instance"
     tags = {
@@ -117,17 +115,13 @@ resource "aws_autoscaling_group" "application_asg" {
   desired_capacity = 3
   max_size         = 3
   min_size         = 3
-  vpc_zone_identifier = [
-    aws_subnet.PRIVATE_SUBNET_AZ_A.id,
-    aws_subnet.PRIVATE_SUBNET_AZ_B.id,
-    aws_subnet.PRIVATE_SUBNET_AZ_C.id
-  ]
+  vpc_zone_identifier = var.subnet_ids
   launch_template {
     id      = aws_launch_template.application_lt.id
     version = "$Latest"
   }
 
-  target_group_arns = [aws_lb_target_group.application_tg.arn]
+  target_group_arns = [var.alb_tg_arn]
 
   tag {
     key                 = "Name"
@@ -136,7 +130,7 @@ resource "aws_autoscaling_group" "application_asg" {
   }
 }
 
-resource "aws_autoscaling_attachment" "attach_asg_to_lb" {
+resource "aws_autoscaling_attachment" "attach_asg_to_tg" {
   autoscaling_group_name = aws_autoscaling_group.application_asg.id
-  lb_target_group_arn    = aws_lb_target_group.application_tg.arn
+  lb_target_group_arn    = var.alb_tg_arn
 }

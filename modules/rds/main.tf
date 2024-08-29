@@ -1,10 +1,6 @@
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name = "${var.application_name}-rds-subnet-group"
-  subnet_ids = [
-    module.vpc.data_subnet_az_a_id,
-    module.vpc.data_subnet_az_b_id,
-    module.vpc.data_subnet_az_c_id
-  ]
+  subnet_ids = var.subnet_ids
 
   tags = {
     Name             = "${var.application_name}-rds-subnet-group"
@@ -39,13 +35,13 @@ resource "aws_db_parameter_group" "rds_parameter_group" {
 resource "aws_security_group" "rds_security_group" {
   name        = "${var.application_name}-rds-sg"
   description = "Security group for RDS allowing EC2 instances to connect"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
-    security_groups = [var.enable_auto_scaling? module.compute.asg_sg_id : module.compute.ec2_instance_sg]
+    security_groups = [var.instance_sg_id]
   }
 
   egress {

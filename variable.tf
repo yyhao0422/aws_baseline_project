@@ -44,7 +44,7 @@ variable "db_engine_version" {
   description = "The DB engine version for the RDS instance"
   type        = string
   default     = "8.0"
-  
+
 }
 
 
@@ -57,11 +57,24 @@ variable "db_username" {
 variable "db_password" {
   description = "The password for the RDS instance"
   type        = string
-  default = "PassWord123"
+  default     = "PassWord123"
 }
 
 variable "db_instance_type" {
   description = "The instance type for the RDS instance"
   type        = string
   default     = "db.t3.micro"
+}
+
+variable "bucket_name" {
+  description = "The name of the bucket"
+  type        = string
+  default     = "terraform-gennerated-bucket"
+}
+
+variable "enable_auto_scaling" {
+  description = "Turn on auto scaling for the compute instances"
+  type        = bool
+  default     = false
+
 }
